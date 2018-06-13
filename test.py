@@ -19,6 +19,20 @@ thumbs_down = []
 
 test_output = open('test_output.txt', 'wb')
 
+# First 20 review comments
+soup = BeautifulSoup(driver.page_source)
+comments_obj_first20 = soup.select('p.commentsParagraph')
+comments_found = len(comments_obj_first20)
+count = 1
+for comment in comments_obj_first20:
+    comments.append(comment.text.strip())
+    print(count)
+    pickle.dump(count, test_output)
+    pickle.dump('\n', test_output)
+    pickle.dump(comment.text, test_output)
+    pickle.dump('\n\n', test_output)
+    count += 1
+
 try:
     while True:
         loadmore_button = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, 'loadMore')))
@@ -28,9 +42,11 @@ except:
     pass
 
 finally:
+
+    # Rest of the review comments
     comments_obj = driver.find_elements_by_xpath("//td[@class='comments']/p")
-    count=1
-    for comment in comments_obj:
+
+    for comment in comments_obj[comments_found:]:
         print(count)
         comments.append(comment.text)
         #print(comment.text)
