@@ -1,10 +1,14 @@
-from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
 import pickle
 from bs4 import BeautifulSoup
+
+# For test
+driver = webdriver.PhantomJS(executable_path='/home/zafrin/Programs/phantomjs-2.1.1-linux-x86_64/bin/phantomjs')
+driver.get('tippit.html')
+
 
 fhand = open('tippit.html')
 html = fhand.read()
@@ -14,33 +18,63 @@ def student_reviews(soup):
     reviews = dict()
 
     review_soup = soup.select('td.rating')
-    # print(review_soup[0])
-    print(len(review_soup))
-    print(type(review_soup))
+    print(review_soup[0])
+    print('number of reviews', len(review_soup))
 
-    dates = soup.select('div[class=date]')
-    print('Dates', len(dates))
+    # dates = soup.select('div[class=date]')
+    # print('Dates', len(dates))
+    # print(dates[0].text.strip())
 
-    rating_types = soup.select('span[class=rating-type]')
-    print('Rating type', len(rating_types))
+    # rating_types = soup.select('span[class=rating-type]')
+    # print('Rating type', len(rating_types))
+    # print(rating_types[0].text.strip())
 
-    overall_quality = soup.select('span.score average')
-    print('Overall Quality', len(overall_quality))
+    # overall_quality = []
+    # level_of_difficulty = []
+    #
+    # quality_and_difficulity = soup.select('div.descriptor-container')
+    # print('quality_and_difficulity', len(quality_and_difficulity))
+    # for i, value in enumerate(quality_and_difficulity):
+    #     overall_quality.append(value) if i%2==0 else level_of_difficulty.append(value)
 
-    level_of_difficulty = soup.select('span.score inverse good')
-    print('level_of_difficulty', len(level_of_difficulty))
+    # print('Overall_quality: ', len(overall_quality))
+    # print('leval of difficulity: ', len(level_of_difficulty))
 
-    descriptor_container = soup.select('div.descriptor-container')
-    print('descriptor_container', len(descriptor_container))
+    class_names = []
+    for_credits = []
+    attendence_info = []
+    textbook_used_info = []
+    would_take_again_info = []
+    grades_revieved_info = []
+    classes_raw = soup.select('td.class')
+    print('class', len(classes_raw))
+
+    for cls in classes_raw:
+        class_info = cls.text.strip().split('\n')
+        class_names.append(class_info[0])
+        class_info = class_info[1:]
+        for i, info in enumerate(class_info):
+            class_info[i] = info.split(': ')
+
+        for_credits.append(class_info[0][1])
+        attendence_info.append(class_info[1][1])
+        textbook_used_info.append(class_info[2][1])
+        would_take_again_info.append(class_info[3][1])
+        grades_revieved_info.append(class_info[4][1])
+        print(class_info)
 
 
-    class_info = soup.select('td.class')
-    print('class', len(class_info))
+    for i in [class_names, for_credits, attendence_info, textbook_used_info, would_take_again_info, grades_revieved_info]:
+        print(len(i), sep='  ')
+
+    for i in [class_names, for_credits, attendence_info, textbook_used_info, would_take_again_info, grades_revieved_info]:
+        print(i)
+
 
 
     tags_by_user = soup.select('div.tagbox')
     print('tags', len(tags_by_user))
-
+    print(tags_by_user[0].text)
 
 # driver = webdriver.PhantomJS(executable_path='/home/zafrin/Programs/phantomjs-2.1.1-linux-x86_64/bin/phantomjs')
 # driver.get('http://www.ratemyprofessors.com/ShowRatings.jsp?tid=1500075')
@@ -94,3 +128,7 @@ def student_reviews(soup):
 # class Reviews(Professor):
 #     def __init__(self):
 #         prof_id
+
+student_reviews(soup)
+
+driver.close()
