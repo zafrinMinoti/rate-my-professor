@@ -99,5 +99,5 @@ class ScrapeProfessor(WebConnection):
 
         return tags
 
-professor = ScrapeProfessor(0000)
-print(professor.scrape())
+# professor = ScrapeProfessor(0000)
+# print(professor.scrape())
