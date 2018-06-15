@@ -1,4 +1,5 @@
 import re
+import json
 from scrape_reviews import ScrapeReviews
 
 class ScrapeProfessor(ScrapeReviews):
@@ -10,13 +11,25 @@ class ScrapeProfessor(ScrapeReviews):
     def prof_info(self):
         return self._prof_info
 
-    def scrape(self):
+    def scrape_professor(self):
+        print('Connecting to professor: {}'.format(self.prof_id))
         self.prof_info['id'] = self.prof_id
         self.prof_info.update(self.scrape_basic_info())
         self.prof_info.update(self.scrape_quality_info())
         self.prof_info.update(self.scrape_tags())
 
-        return self.prof_info
+        # return self.prof_info
+        try:
+            with open("data/professors.json", "a+") as file:
+                json.dump(self.prof_info, file)
+                file.write('\n')
+
+        except TypeError:
+            pass
+
+        finally:
+            # print('Retrived professor: {}'.format(self.prof_id))
+            pass
 
     def scrape_basic_info(self):
         basic = dict()
@@ -45,9 +58,7 @@ class ScrapeProfessor(ScrapeReviews):
         hotness = re.search('chilis/(.+)\.png', str(self.soup)).group(1)
         quality['hotness'] = hotness
 
-        review_count = self.soup.select(
-            'div.table-toggle')[0].get_text().strip().split()[0]
-        quality['review_count'] = int(review_count)
+        quality['review_count'] = self.total_review_count()
 
         return quality
 
@@ -62,7 +73,3 @@ class ScrapeProfessor(ScrapeReviews):
             tags[tag_key] = tag_count
 
         return tags
-
-professor = ScrapeProfessor(1500075)
-print(professor.scrape())
-

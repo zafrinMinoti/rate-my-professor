@@ -1,26 +1,12 @@
-from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-from bs4 import BeautifulSoup
-
 import time
 import json
 
-class WebConnection:
-    _ROOT = 'http://www.ratemyprofessors.com/ShowRatings.jsp?tid='
-
-    def __init__(self, prof_id):
-        self._prof_id = prof_id
-        self.url = WebConnection._ROOT+str(self.prof_id)
-        self.driver = webdriver.PhantomJS(executable_path='/home/zafrin/Programs/phantomjs-2.1.1-linux-x86_64/bin/phantomjs')
-        self.driver.get(self.url)
-        self.soup = BeautifulSoup(self.driver.page_source, 'lxml')
-
-    @property
-    def prof_id(self):
-        return self._prof_id
+from bs4 import BeautifulSoup
+from web_connection import WebConnection
 
 class ScrapeReviews(WebConnection):
     def __init__(self, prof_id):
@@ -55,10 +41,9 @@ class ScrapeReviews(WebConnection):
         self._review_count = self.total_review_count()
         try:
             # Verify if the number of student rating is equal to scraped student raviews
-            print('Getting infomation about professor: {}'.format(self.prof_id))
             while not self.all_loaded():
                 self.loadmore()
-            print('{} of total {} reviews retrived'.format(self.total_review_count(), self.loaded_review_count()))
+            # print('Review retrived: {} of {}'.format(self.total_review_count(), self.loaded_review_count()))
 
             # Else report to problem
         except:
@@ -75,9 +60,9 @@ class ScrapeReviews(WebConnection):
                 self.soup = BeautifulSoup(self.driver.page_source, 'lxml')
                 self.set_all_values()
                 self.create_record_dict()
-                print('All reviews loaded')
+                # print('Successul!')
 
-                time.sleep(2)
+                time.sleep(4)
                 self.driver.close()
 
             else:
@@ -135,7 +120,7 @@ class ScrapeReviews(WebConnection):
     def loadmore(self):
         loadmore_button = WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.ID, 'loadMore')))
         loadmore_button.click()
-        time.sleep(4)
+        time.sleep(5)
 
     # Review counts - total and loaded
 
@@ -237,10 +222,3 @@ class ScrapeReviews(WebConnection):
                 self.thumbs_up.append(thumb.text)
             else:
                 self.thumbs_down.append(thumb.text)
-
-
-# test_output = open('test_output.txt', 'wb')
-#     test_output.close()
-
-x = ScrapeReviews(1500075)
-x.scrape_reviews()
