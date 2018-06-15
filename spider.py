@@ -1,4 +1,5 @@
 from scrape_professor import ScrapeProfessor
+from multiprocessing import Pool
 import json
 import time
 
@@ -15,10 +16,18 @@ def generate_metadata(prof_id):
         file.write(str(time.localtime()))
         file.write('\nstarting id: {}\n'.format(prof_id))
 
+def get_ids(cores=2):
+    startid = get_lastid()
+    ids_to_process = []
+    for core in range(cores):
+        ids_to_process.append(startid)
+        startid += 1
+    output_lastid(ids_to_process[-1])
+    return ids_to_process
 
-def main():
+def process(prof_id):
     error = 0
-    currentid = get_lastid()
+    currentid = prof_id
     generate_metadata(currentid)
 
     while True and error < 100000:
@@ -27,21 +36,23 @@ def main():
             professor.scrape_professor()
             professor.scrape_reviews()
             print('seccess retriving id: {}'.format(currentid))
+
         except:
             print('404 ERROR for id: {}'.format(currentid))
             # feed error ids to 404.txt
             with open("data/metadata/404.txt", "a+") as file:
                 json.dump(str(currentid), file)
                 file.write('\n')
+            error += 1
 
-            if currentid == get_lastid() + 1:
-                error += 1
-            else:
-                error = 1
         finally:
-            output_lastid(currentid)
-            currentid += 1
             time.sleep(5)
+
+def main():
+    pool = Pool()
+    ids = get_ids(cores=2)
+    pool.map(process, ids)
+
 
 if __name__ == '__main__':
     main()
