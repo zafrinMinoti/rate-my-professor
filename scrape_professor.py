@@ -1,71 +1,35 @@
-import requests
-from bs4 import BeautifulSoup
 import re
-from ast import literal_eval
+from scrape_reviews import ScrapeReviews
 
-class WebConnection:
-    _ROOT = 'http://www.ratemyprofessors.com/ShowRatings.jsp?tid='
-
-    def __init__(self, prof_id):
-        self._prof_id = prof_id
-        self._soup = self.make_soup()   # Is this necessary
-
-    @property
-    def prof_id(self):
-        return self._prof_id
-
-    @property
-    def soup(self):
-        return self._soup
-
-    def make_soup(self):
-        '''
-        Should be made using driver
-        '''
-        # page = requests.get(_ROOT+str(self.prof_id))
-        # html = page.text
-        fhand = open('tippit.html')
-        html = fhand.read()
-        return BeautifulSoup(html, 'html.parser')
-
-
-class ScrapeProfessor(WebConnection):
+class ScrapeProfessor(ScrapeReviews):
     def __init__(self, prof_id):
         super(ScrapeProfessor, self).__init__(prof_id)
-        self._info = dict()
+        self._prof_info = dict()
 
     @property
-    def info(self):
-        return self._info
+    def prof_info(self):
+        return self._prof_info
 
     def scrape(self):
-        self.info['id'] = self.prof_id
-        self.info.update(self.scrape_basic_info())
-        self.info.update(self.scrape_quality_info())
-        self.info.update(self.scrape_tags())
+        self.prof_info['id'] = self.prof_id
+        self.prof_info.update(self.scrape_basic_info())
+        self.prof_info.update(self.scrape_quality_info())
+        self.prof_info.update(self.scrape_tags())
 
-        return self.info
+        return self.prof_info
 
     def scrape_basic_info(self):
         basic = dict()
 
-        basic_info_script = self.soup.select('script')[3].text
-        info_dict = re.search(
-            'pageLevelData:\s({.+}),\s*reloadInterval:', basic_info_script).group(1)
-        basic_info = literal_eval(info_dict)
-
-        basic['name'] = basic_info['prop7']
-        basic['school'] = basic_info['prop6']
-        basic['school_id'] = basic_info['schoolid']
-        basic['subject'] = basic_info['prop3']
-        # fname = soup.select('span.pfname')[0].get_text().strip()
-        # mname = soup.select('span.pfname')[1].get_text().strip()
-        # lname = soup.select('span.plname')[0].get_text().strip()
-        # name = fname+' '+lname if mname == '' else fname+' '+mname+' '+lname
-        # print(name)
-        geo_info = self.soup.select('h2.schoolname')[0].get_text().split(',')
-        basic['city'] = geo_info[1].strip()
-        basic['state'] = geo_info[2].strip()
+        fname = self.driver.find_element_by_xpath("//span[@class='pfname']").text
+        lname = self.driver.find_element_by_xpath("//span[@class='plname']").text
+        basic['name'] = fname + ' ' + lname
+        basic['school'] = self.driver.find_element_by_xpath("//a[@class='school']").text
+        basic['school_link'] = self.driver.find_element_by_xpath("//a[@class='school']").get_attribute("href")
+        basic['dept'] = self.driver.find_element_by_xpath("//div[@class='result-title']")
+        geo = self.driver.find_element_by_xpath("//h2[@class='schoolname']").text.split(',')
+        basic['city'] = geo[1].strip()
+        basic['state'] = geo[2].strip()
 
         return basic
 
@@ -99,5 +63,6 @@ class ScrapeProfessor(WebConnection):
 
         return tags
 
-# professor = ScrapeProfessor(0000)
-# print(professor.scrape())
+professor = ScrapeProfessor(1500075)
+print(professor.scrape())
+
