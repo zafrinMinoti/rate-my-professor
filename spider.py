@@ -19,8 +19,9 @@ def generate_metadata(prof_id):
 def main():
     error = 0
     currentid = get_lastid()
-    generate_medadata(currentid)
-    while True and error < 1:
+    generate_metadata(currentid)
+
+    while True and error < 100000:
         try:
             professor = ScrapeProfessor(currentid)
             professor.scrape_professor()
@@ -32,12 +33,15 @@ def main():
             with open("data/metadata/404.txt", "a+") as file:
                 json.dump(str(currentid), file)
                 file.write('\n')
-            error += 1
+
+            if currentid == get_lastid() + 1:
+                error += 1
+            else:
+                error = 1
         finally:
             output_lastid(currentid)
             currentid += 1
-            if error > 1:
-                time.sleep(15)
+            time.sleep(5)
 
 if __name__ == '__main__':
     main()

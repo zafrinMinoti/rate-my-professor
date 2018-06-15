@@ -39,7 +39,7 @@ class ScrapeProfessor(ScrapeReviews):
         basic['name'] = fname + ' ' + lname
         basic['school'] = self.driver.find_element_by_xpath("//a[@class='school']").text
         basic['school_link'] = self.driver.find_element_by_xpath("//a[@class='school']").get_attribute("href")
-        basic['dept'] = self.driver.find_element_by_xpath("//div[@class='result-title']")
+        basic['dept'] = self.driver.find_element_by_xpath("//div[@class='result-title']").text.split('\n')[0]
         geo = self.driver.find_element_by_xpath("//h2[@class='schoolname']").text.split(',')
         basic['city'] = geo[1].strip()
         basic['state'] = geo[2].strip()
