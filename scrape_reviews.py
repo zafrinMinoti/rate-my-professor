@@ -4,6 +4,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
 import pickle
+import json
 from bs4 import BeautifulSoup
 
 class WebConnection:
@@ -36,6 +37,8 @@ class WebConnection:
         # html = fhand.read()
         # return BeautifulSoup(html, 'html.parser')
         return BeautifulSoup(self.driver.page_source, 'lxml')
+
+
 
 
 
@@ -83,17 +86,19 @@ class ScrapeReviews(WebConnection):
             print('could not load all reviews for professor: {}'.format(self.prof_id))
             print('reporting...\ncooling down...')
             time.sleep(8)
-            # with open(failed_report.txt, 'r'):
-                ## write
+            # keep prof_id as metadata for failed jobs
+            with open("data/metadata/fialed_loding_reviews.txt", "a+") as file:
+                json.dump(self.prof_id, file)
+                file.write('\n')
 
         finally:
             if self.all_loaded():
                 ## ADD Professor ID
                 ##
+                self._soup = BeautifulSoup(self.driver.page_source, 'lxml')
                 print('All loaded')
                 self.set_all_values()
-                self.create_records()
-                self.dump_records()
+                self.create_record_dict()
 
             else:
                 print('not all_loaded')
@@ -109,34 +114,51 @@ class ScrapeReviews(WebConnection):
         self.get_comments()
         # self.thumbs()
 
-    def create_records(self):
+    def create_record_tuples(self):
         # Create touples of records
         self.records = zip(self.dates,
-        self.rating_types,
-        self.overall_quality,
-        self.level_of_difficulty,
-        self.class_names,
-        self.for_credits,
-        self.attendence_info,
-        self.textbook_used_info,
-        self.would_take_again_info,
-        self.grades_revieved_info,
-        self.tags_by_user,
-        self.comments,
-        self.thumbs_up,
-        self.thumbs_down)
-
+                        self.rating_types,
+                        self.overall_quality,
+                        self.level_of_difficulty,
+                        self.class_names,
+                        self.for_credits,
+                        self.attendence_info,
+                        self.textbook_used_info,
+                        self.would_take_again_info,
+                        self.grades_revieved_info,
+                        self.tags_by_user,
+                        self.comments,
+                        self.thumbs_up,
+                        self.thumbs_down)
         return self.records
 
-    def dump_records(self):
-        json_to_dump = dict()
-        count =0
-        for record in self.records:
-            print(record)
-            print()
-            count +=1
-            if count ==3: break
-            # jason_to_dump[key] = record[0]
+    def create_record_dict(self):
+        self.create_record_tuples()
+        for record_tuple in self.records:
+            record = dict()
+            # print(record)
+            # print()
+            # count +=1
+            # if count ==3: break
+            record['prof_id'] = self.prof_id
+            record['date'] = record_tuple[0]
+            record['rating_type'] = record_tuple[1]
+            record['overall_quality'] = record_tuple[2]
+            record['level_of_difficulty'] = record_tuple[3]
+            record['class_names'] = record_tuple[4]
+            record['for_credits'] = record_tuple[5]
+            record['attendence'] = record_tuple[6]
+            record['textbook_used'] = record_tuple[7]
+            record['would_take_again'] = record_tuple[8]
+            record['grades_revieved'] = record_tuple[9]
+            record['tags_by_user'] = record_tuple[10]
+            record['comments'] = record_tuple[11]
+            record['thumbs_up'] = record_tuple[12]
+            record['thumbs_down'] = record_tuple[13]
+
+            with open("data/reviews.json", "a+") as file:
+                json.dump(record, file)
+                file.write('\n')
 
     def loadmore(self):
         loadmore_button = WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.ID, 'loadMore')))
@@ -284,8 +306,6 @@ class ScrapeReviews(WebConnection):
 
 x = ScrapeReviews(1000)
 x.scrape_reviews()
-
-print(x.create_records())
 
 
 x.driver.close()
