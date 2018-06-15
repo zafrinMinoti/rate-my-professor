@@ -17,42 +17,47 @@ def generate_metadata(prof_id):
         file.write('\nstarting id: {}\n'.format(prof_id))
 
 def get_ids(cores=2):
-    startid = get_lastid()
+    startid = get_lastid() + 1
     ids_to_process = []
     for core in range(cores):
         ids_to_process.append(startid)
         startid += 1
-    output_lastid(ids_to_process[-1])
+        print('start id', startid)
     return ids_to_process
 
 def process(prof_id):
-    error = 0
-    currentid = prof_id
-    generate_metadata(currentid)
+    try:
+        professor = ScrapeProfessor(prof_id)
+        professor.scrape_professor()
+        professor.scrape_reviews()
+        print('seccess retriving id: {}'.format(prof_id))
 
-    while True and error < 100000:
-        try:
-            professor = ScrapeProfessor(currentid)
-            professor.scrape_professor()
-            professor.scrape_reviews()
-            print('seccess retriving id: {}'.format(currentid))
+    except:
+        print('404 ERROR for id: {}'.format(prof_id))
+        # feed error ids to 404.txt
+        with open("data/metadata/404.txt", "a+") as file:
+            json.dump(str(prof_id), file)
+            file.write('\n')
 
-        except:
-            print('404 ERROR for id: {}'.format(currentid))
-            # feed error ids to 404.txt
-            with open("data/metadata/404.txt", "a+") as file:
-                json.dump(str(currentid), file)
-                file.write('\n')
-            error += 1
-
-        finally:
-            time.sleep(5)
+    finally:
+        time.sleep(6)
 
 def main():
     pool = Pool()
-    ids = get_ids(cores=2)
-    pool.map(process, ids)
+    generate_metadata(get_lastid()+1)
+    count = 0
 
+    while True:
+        count+=4
+
+        ids = get_ids(cores=4)
+        output_lastid(ids[-1])
+        pool.map(process, ids)
+
+        if count%100 == 0:
+            print('================================')
+            print('\n\t{} urls crawled\n'.format(count))
+            print('================================')
 
 if __name__ == '__main__':
     main()
