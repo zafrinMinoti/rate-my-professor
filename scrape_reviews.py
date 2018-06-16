@@ -49,7 +49,7 @@ class ScrapeReviews(WebConnection):
         except:
             print('ERROR!\ncould not load all reviews for professor: {}'.format(self.prof_id))
             print('reporting...\ncooling down...')
-            time.sleep(8)
+            time.sleep(4)
             # keep prof_id as metadata for failed jobs
             with open("data/metadata/fialed_loding_reviews.txt", "a+") as file:
                 json.dump(self.prof_id, file)
@@ -62,7 +62,7 @@ class ScrapeReviews(WebConnection):
                 self.create_record_dict()
                 # print('Successul!')
 
-                time.sleep(4)
+                time.sleep(3)
                 self.driver.close()
 
             else:
@@ -120,7 +120,7 @@ class ScrapeReviews(WebConnection):
     def loadmore(self):
         loadmore_button = WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.ID, 'loadMore')))
         loadmore_button.click()
-        time.sleep(5)
+        time.sleep(4)
 
     # Review counts - total and loaded
 
