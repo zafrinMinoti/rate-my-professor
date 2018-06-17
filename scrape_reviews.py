@@ -14,6 +14,7 @@ class ScrapeReviews(WebConnection):
         self._reviews = dict()
         self.init_comments_count = 0
 
+        self.reviewer_ids = []
         self.dates = []
         self.rating_types = []
 
@@ -77,7 +78,9 @@ class ScrapeReviews(WebConnection):
 
     def create_record_tuples(self):
         # Create touples of records
-        self.records = zip(self.dates,
+        self.records = zip(
+                        self.reviewer_ids,
+                        self.dates,
                         self.rating_types,
                         self.overall_quality,
                         self.level_of_difficulty,
@@ -98,24 +101,25 @@ class ScrapeReviews(WebConnection):
         for record_tuple in self.records:
             record = dict()
             record['prof_id'] = self.prof_id
-            record['date'] = record_tuple[0]
-            record['rating_type'] = record_tuple[1]
-            record['overall_quality'] = record_tuple[2]
-            record['level_of_difficulty'] = record_tuple[3]
-            record['class_names'] = record_tuple[4]
-            record['for_credits'] = record_tuple[5]
-            record['attendence'] = record_tuple[6]
-            record['textbook_used'] = record_tuple[7]
-            record['would_take_again'] = record_tuple[8]
-            record['grades_revieved'] = record_tuple[9]
-            record['tags_by_user'] = record_tuple[10]
-            record['comments'] = record_tuple[11]
-            record['thumbs_up'] = record_tuple[12]
-            record['thumbs_down'] = record_tuple[13]
+            record['reviewer_id'] = record_tuple[0]
+            record['date'] = record_tuple[1]
+            record['rating_type'] = record_tuple[2]
+            record['overall_quality'] = record_tuple[3]
+            record['level_of_difficulty'] = record_tuple[4]
+            record['class_names'] = record_tuple[5]
+            record['for_credits'] = record_tuple[6]
+            record['attendence'] = record_tuple[7]
+            record['textbook_used'] = record_tuple[8]
+            record['would_take_again'] = record_tuple[9]
+            record['grades_revieved'] = record_tuple[10]
+            record['tags_by_user'] = record_tuple[11]
+            record['comments'] = record_tuple[12]
+            record['thumbs_up'] = record_tuple[13]
+            record['thumbs_down'] = record_tuple[14]
 
             with open("data/reviews.json", "a+") as file:
                 json.dump(record, file)
-                file.write(',S\n')
+                file.write(',\n')
 
     def loadmore(self):
         loadmore_button = WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.ID, 'loadMore')))
@@ -143,9 +147,19 @@ class ScrapeReviews(WebConnection):
     # Infomation about the reviews
 
     def review_basic(self):
+        self.set_reviewer_ids()
         self.set_dates()
         self.set_rating_types()
         self.set_quality_and_difficulity()
+
+    def set_reviewer_ids(self):
+        raw_ids = self.driver.find_elements_by_xpath("//tbody//tr")
+        for i in raw_ids:
+            prob_id = i.get_attribute("id")
+            try:
+                self.reviewer_ids.append(int(prob_id))
+            except:
+                pass
 
     def set_dates(self):
         dates = self.soup.select('div[class=date]')
