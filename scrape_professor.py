@@ -22,7 +22,7 @@ class ScrapeProfessor(ScrapeReviews):
         try:
             with open("data/professors.json", "a+") as file:
                 json.dump(self.prof_info, file)
-                file.write('\n')
+                file.write(',S\n')
 
         except TypeError:
             pass

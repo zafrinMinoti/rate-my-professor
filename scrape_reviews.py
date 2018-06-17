@@ -115,7 +115,7 @@ class ScrapeReviews(WebConnection):
 
             with open("data/reviews.json", "a+") as file:
                 json.dump(record, file)
-                file.write('\n')
+                file.write(',S\n')
 
     def loadmore(self):
         loadmore_button = WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.ID, 'loadMore')))
