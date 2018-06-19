@@ -4,14 +4,12 @@ from itertools import count
 import json
 import time
 
-
-id_generator = (x for x in count(126960))
+id_generator = (x for x in count(151103))
 static_id = next(id_generator)
+ids404 = []
 
-def get_lastid(source='data/metadata/lastid.txt'):
-    return next(id_generator)
-#    with open(source, 'r') as file:
-#        return int(file.read())
+def get_lastid(gen=id_generator):
+    return next(gen)
 
 
 def output_lastid(prof_id):
@@ -35,7 +33,7 @@ def get_ids(cores=8):
     return ids_to_process
 
 
-def process(prof_id,cores=8):
+def process(prof_id,cores=20):
     try:
         professor = ScrapeProfessor(prof_id)
         professor.scrape_professor()
@@ -44,13 +42,10 @@ def process(prof_id,cores=8):
 
     except:
         print('404 ERROR for id: {}'.format(prof_id))
-        # feed error ids to 404.txt
-        with open("data/metadata/404.txt", "a+") as file:
-            json.dump(str(prof_id), file)
-            file.write('\n')
+        ids404.append(prof_id)
 
     finally:
-        time.sleep(1)
+        time.sleep(4)
 
 
 def main():
@@ -59,8 +54,8 @@ def main():
     count = 0
 
     while True:
-        count += 8
-        ids = get_ids(cores=8)
+        count += 20
+        ids = get_ids(cores=20)
 
         try:
             pool.map(process, ids)
@@ -72,7 +67,12 @@ def main():
                 print('================================')
 
         except KeyboardInterrupt:
-            output_lastid(ids[0]-8)
+            output_lastid(ids[0]-20)
+            # feed error ids to 404.txt
+            with open("data/metadata/404.txt", "a+") as file:
+                for i in ids404:
+                    json.dump(i, file)
+                    file.write('\n')
             break
 
 
