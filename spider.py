@@ -4,13 +4,9 @@ from itertools import count
 import json
 import time
 
-id_generator = (x for x in count(151103))
-static_id = next(id_generator)
+static_startid = 192011
+id_generator = (x for x in count(static_startid))
 ids404 = []
-
-def get_lastid(gen=id_generator):
-    return next(gen)
-
 
 def output_lastid(prof_id):
     with open('data/metadata/lastid.txt', 'w') as file:
@@ -23,12 +19,10 @@ def generate_metadata(prof_id):
         file.write('\nstarting id: {}\n'.format(prof_id))
 
 def get_ids(cores=8):
-    startid = get_lastid()
     ids_to_process = []
     for core in range(cores):
         ids_to_process.append(next(id_generator))
-        print('start id', startid)
-        startid += 1
+        print('start id', ids_to_process[core])
     # output_lastid(ids_to_process[-1])
     return ids_to_process
 
@@ -50,7 +44,7 @@ def process(prof_id,cores=20):
 
 def main():
     pool = Pool()
-    generate_metadata(static_id + 1)
+    generate_metadata(static_startid)
     count = 0
 
     while True:
@@ -68,6 +62,7 @@ def main():
 
         except KeyboardInterrupt:
             output_lastid(ids[0]-20)
+            print(ids404)
             # feed error ids to 404.txt
             with open("data/metadata/404.txt", "a+") as file:
                 for i in ids404:
