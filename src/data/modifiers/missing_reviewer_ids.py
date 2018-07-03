@@ -10,7 +10,7 @@ _ROOT = 'http://www.ratemyprofessors.com/ShowRatings.jsp?tid='
 driver = webdriver.PhantomJS(
     executable_path='/home/zafrin/Programs/phantomjs-2.1.1-linux-x86_64/bin/phantomjs')
 
-id_generator = (x for x in count(100470))
+id_generator = (x for x in count(103667))
 
 
 def get_lastid(gen=id_generator):
@@ -34,7 +34,7 @@ def loadmore():
     time.sleep(4)
 
 def main():
-    prof_id = 100471
+    prof_id = 103667
 
     while prof_id < 126962:
         if prof_id not in ids404:
@@ -55,7 +55,7 @@ def main():
             record[prof_id] = reviewer_ids
 
             # output the dictionary in json
-            with open('data/reviewer_ids.json', 'a+') as file:
+            with open('/RateMyProfessor/data/raw/reviewer_ids.json', 'a+') as file:
                 json.dump(record, file)
                 file.write(',\n')
 
@@ -65,11 +65,8 @@ def main():
             prof_id = next(id_generator)
 
 if __name__ == '__main__':
-
-
-
     ids404 = []
-    with open('data/metadata/404.txt') as file:
+    with open('/RateMyProfessor/data/raw/metadata/404.txt') as file:
         for line in file:
             i = int(line.strip().strip('\"'))
             if i > 100470 and i < 126962:

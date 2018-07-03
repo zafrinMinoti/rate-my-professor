@@ -52,7 +52,7 @@ class ScrapeReviews(WebConnection):
             print('reporting...\ncooling down...')
             time.sleep(4)
             # keep prof_id as metadata for failed jobs
-            with open("data/metadata/fialed_loding_reviews.txt", "a+") as file:
+            with open("/RateMyProfessor/data/raw/metadata/fialed_loding_reviews.txt", "a+") as file:
                 json.dump(self.prof_id, file)
                 file.write('\n')
 
@@ -117,7 +117,7 @@ class ScrapeReviews(WebConnection):
             record['thumbs_up'] = record_tuple[13]
             record['thumbs_down'] = record_tuple[14]
 
-            with open("data/reviews.json", "a+") as file:
+            with open("/RateMyProfessor/data/raw/reviews.json", "a+") as file:
                 json.dump(record, file)
                 file.write(',\n')
 

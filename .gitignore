@@ -1,0 +1,6 @@
+code_collection.py
+*.idea
+*.log
+data/*
+*/__pycache__
+*.odt
