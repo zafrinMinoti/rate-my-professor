@@ -1,7 +1,7 @@
 from spacy import load
 nlp = load('en')
 
-def extract_comments():
+def extract_comments_sents():
     '''
     IN: file: raw scraped reviews
     OUT 1: file: review comments - one sentence per line
@@ -26,5 +26,28 @@ def extract_comments():
                 tracker.write('{},{},{}\n'.format(indict['prof_id'], indict['reviewer_id'], num))
                 comments.write('{}\n'.format(sent))
 
+
+def extract_comments():
+    '''
+    IN: file: raw scraped reviews
+    OUT 1: file: review comments - one comment per line
+    OUT 2: file: review comments tracker - prof_if, revirwer_id - for one comment per line
+    '''
+
+    raw = '../RateMyProfessor/data/raw/reviews.json'
+    intermi = '../RateMyProfessor/data/intermediate/comments/'
+
+    with open(raw, 'r') as raw_file, \
+            open(intermi + 'comment_tracker.txt', 'w') as tracker, \
+            open(intermi + 'comment_raw.txt', 'w') as comments:
+
+        for line in raw_file:
+            indict = line[:-2]  # deselect the comma (,) from the end of the line
+            indict = eval(indict)
+
+            tracker.write('{},{}\n'.format(indict['prof_id'], indict['reviewer_id']))
+            comments.write('{}\n'.format(indict['comments']))
+
 if __name__ == '__main__':
+    extract_comments_sents()
     extract_comments()
