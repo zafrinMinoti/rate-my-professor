@@ -20,7 +20,7 @@ class ScrapeProfessor(ScrapeReviews):
 
         # return self.prof_info
         try:
-            with open("/RateMyProfessor/data/raw/professors.json", "a+") as file:
+            with open("../RateMyProfessor/data/raw/professors.json", "a+") as file:
                 json.dump(self.prof_info, file)
                 file.write(',S\n')
 
