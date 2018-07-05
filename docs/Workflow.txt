@@ -1,0 +1,19 @@
+make a file with all review comments, one comment/sentence per line
+lemmatize (normalize)
+
+To find words most similar to 'teaching':
+        - Word2Vector
+        - most_similar('teaching') from word2vac model
+        * try with and without stopwords, comment level vs sentence level
+
+for recomender system, needs topic modeling, for which:
+        - remove stop words - standard stop words first - may improve afterwords
+        - phrase modeling - bigrams/trigrams
+        - get frequent phrases for each professor and count per review
+        - get tags and tag count per tagged-review
+        * -PRON- When is it talking about the prof vs the textbook vs someone/something else?
+
+    for topic modeling, you shlould perform preprocessing on the text, following things you must do,
+        Remove of stop words.
+        Tokenization.
+        Stemming and Lemmatization.
