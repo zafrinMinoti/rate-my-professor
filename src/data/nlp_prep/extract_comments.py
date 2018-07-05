@@ -8,11 +8,10 @@ def main():
 
     count = 0
 
-    prof_ids = ''
-    reviewer_ids = ''
+    comment_tracker = ''
     comments = ''
 
-    pr_sent_ids = ''
+    sent_tracker = ''
     sents = ''
 
     tokenized_comments = ''
@@ -33,24 +32,24 @@ def main():
             # print(type(indict))
 
             comment = indict['comments']
-            prof_id = indict['prof_id']
-            reviewer_id = indict['reviewer_id']
+            prof_id = str(indict['prof_id'])
+            reviewer_id = str(indict['reviewer_id'])
             #
             parsed_comment = nlp(comment)
 
             # separate raw comments and treck them
-            prof_ids += str(prof_id) + ',' + str(reviewer_id) + '\n'
+            comment_tracker += prof_id + ',' + reviewer_id + '\n'
             comments += comment + '\n'
 
             # tokenize comments and separate them
             tokenized_comments += str(([token.lemma_ for token in parsed_comment])) + '\n'
 
-            # # separate sentences and track them
-            # for num, sent in enumerate(parsed_comment.sents):
-            #     pr_sent_ids.append(zip(indict['prof_id'], indict['reviewer_id'], num))
-            #     sents.append(sent)
-            #     # tokenize sentences and separate them
-            #     tokenized_sents.append([token.lemma_ for token in sent])
+            # separate sentences and track them
+            for num, sent in enumerate(parsed_comment.sents):
+                sent_tracker += prof_id + ',' + reviewer_id + ','+ str(num) + '\n'
+                sents += sent.text + '\n'
+                # tokenize sentences and separate them
+                tokenized_sents += str([token.lemma_ for token in sent]) + '\n'
 
 
             # Write to files on batches
@@ -59,8 +58,13 @@ def main():
 
             if count%1000 == 0:
                 comment_raw_file.write(comments)
-                comment_tracker_file.write(prof_ids)
+                comment_tracker_file.write(comment_tracker)
                 comment_token_file.write(tokenized_comments)
+
+                sent_raw_file.write(sents)
+                sent_tracker_file.write(sent_tracker)
+                sent_token_file.write(tokenized_sents)
+
                 print('{} DONE!!!'.format(count))
 
 
