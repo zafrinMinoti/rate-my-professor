@@ -1,11 +1,60 @@
+---------------------------------------------------------------------------------------------------
+Data Gathering
+---------------------------------------------------------------------------------------------------
+Source: ratemyprofessor.com
+type: HTML and JavaScript
+
+2 types of data needs to be gathered:
+    1. professor's info (name, school, rating, hotness, etc)
+    2. individual reviews (class, grade received, rating, review comments or text)
+
+A 4-file-system was created:
+    1. web_connection.py
+                    defines root and creates a headless browser pointer
+    2. scrape_reviews.py inherits from web_connection
+                    scrape all review level data for a single professor and saves it to disk
+    3. scrape_professors.py inherits from scrape_reviews
+                    scrape all professor level data for a single professor and saves it to disk
+    4. spider.py
+                    loops to get all professor's data. restartable.
+
+---------------------------------------------------------------------------------------------------
+EDA
+---------------------------------------------------------------------------------------------------
+Something to investigate:
+    - differences in overall quality, level of difficulty, and hotness among gender
+    - differences in overall quality, level of difficulty, and hotness by department
+    - most popular tags by department, overall quality, level of difficulty, hotness
+
+---------------------------------------------------------------------------------------------------
+Machine Learning
+---------------------------------------------------------------------------------------------------
+Goals:
+    1. Creating a rating model that rates professors based on their teaching skills
+            a. comment/sentence similarity to "teaching"- Teaching Association Coefficient (T)
+            b. sentiment of that comment/sentence - (E)
+            c. Rating for the professor = T*E*scalar
+
+    2. Recommender System
+
+Beginning steps
+---------------
 make a file with all review comments, one comment/sentence per line
 lemmatize (normalize)
 
+Teaching-based similarity
+-------------------------
 To find words most similar to 'teaching':
         - Word2Vector
         - most_similar('teaching') from word2vac model
         * try with and without stopwords, comment level vs sentence level
 
+Sentiment analysis
+------------------
+
+
+Recommender System
+------------------
 for recomender system, needs topic modeling, for which:
         - remove stop words - standard stop words first - may improve afterwords
         - phrase modeling - bigrams/trigrams
