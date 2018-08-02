@@ -12,19 +12,25 @@ class ScrapeProfessor(ScrapeReviews):
         return self._prof_info
 
     def scrape_professor(self):
-        print('Connecting to professor: {}'.format(self.prof_id))
+        # print('success: prof: Connecting to professor: {}'.format(self.prof_id))
         self.prof_info['id'] = self.prof_id
+        # print('success: prof: prof_id success')
         self.prof_info.update(self.scrape_basic_info())
+        # print('success: prof: prof basic info')
         self.prof_info.update(self.scrape_quality_info())
+        # print('success: prof: prof quality info')
         self.prof_info.update(self.scrape_tags())
+        # print('success: prof: prof tags')
 
         # return self.prof_info
         try:
-            with open("../RateMyProfessor/data/raw/professors.json", "a+") as file:
+            with open("/home/zafrin/PycharmProjects/RateMyProfessor/data/raw/professors.json", "a+") as file:
                 json.dump(self.prof_info, file)
-                file.write(',S\n')
+                file.write(',\n')
+            # print('success: prof: wrote to disk')
 
         except TypeError:
+            # print('PROF: BROKE DOWN')
             pass
 
         finally:
@@ -52,14 +58,23 @@ class ScrapeProfessor(ScrapeReviews):
         all_qualities = self.soup.select('div.grade')
 
         quality['overall_quality'] = all_qualities[0].get_text().strip()
+        # print('success: prof: all qualities ')
         quality['take_again'] = all_qualities[1].get_text().strip()
+        # print('success: prof: take again')
         quality['level_of_difficulity'] = all_qualities[2].get_text().strip()
+        # print('success: prof: level of difficulity')
 
-        hotness = re.search('chilis/(.+)\.png', str(self.soup)).group(1)
+        try:
+            hotness = re.search('chilis/(.+)\.png', str(self.soup)).group(1)
+            # print('success: prof: hotness retrived')
+        except:
+            hotness = 'N/A'
+            # print('success: prof: hotness set to NA')
+
         quality['hotness'] = hotness
-
+        # print('success: prof: hotness set')
         quality['review_count'] = self.total_review_count()
-
+        # print('success: prof: review count')
         return quality
 
     def scrape_tags(self):

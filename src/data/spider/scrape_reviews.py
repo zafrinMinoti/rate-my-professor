@@ -45,23 +45,23 @@ class ScrapeReviews(WebConnection):
             while not self.all_loaded():
                 self.loadmore()
             # print('Review retrived: {} of {}'.format(self.total_review_count(), self.loaded_review_count()))
-
+            # print('all loaded')
             # Else report to problem
         except:
             print('ERROR!\ncould not load all reviews for professor: {}'.format(self.prof_id))
             print('reporting...\ncooling down...')
             time.sleep(4)
             # keep prof_id as metadata for failed jobs
-            with open("../RateMyProfessor/data/raw/metadata/fialed_loding_reviews.txt", "a+") as file:
+            with open("/home/zafrin/PycharmProjects/RateMyProfessor/data/raw/metadata/fialed_loding_reviews.txt", "a+") as file:
                 json.dump(self.prof_id, file)
-                file.write('\n')
+                file.write(',\n')
 
         finally:
             if self.all_loaded():
                 self.soup = BeautifulSoup(self.driver.page_source, 'lxml')
                 self.set_all_values()
                 self.create_record_dict()
-                # print('Successul!')
+                # print('Successul!reviews!!!!')
 
                 time.sleep(3)
                 self.driver.close()
@@ -117,11 +117,14 @@ class ScrapeReviews(WebConnection):
             record['thumbs_up'] = record_tuple[13]
             record['thumbs_down'] = record_tuple[14]
 
-            with open("../RateMyProfessor/data/raw/reviews.json", "a+") as file:
+            with open("/home/zafrin/PycharmProjects/RateMyProfessor/data/raw/reviews.json", "a+") as file:
                 json.dump(record, file)
                 file.write(',\n')
 
+            # print('Sucesses writing reviews')
+
     def loadmore(self):
+        # print('loading more')
         loadmore_button = WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.ID, 'loadMore')))
         loadmore_button.click()
         time.sleep(4)

@@ -4,17 +4,18 @@ from itertools import count
 import json
 import time
 
-static_startid = 235330
+static_startid = 235359
 id_generator = (x for x in count(static_startid))
 ids404 = []
+local_datapath = '/home/zafrin/PycharmProjects/RateMyProfessor'
+aws_datapath = '/home/ec2-user'
 
 def output_lastid(prof_id):
-    with open('../RateMyProfessor/data/raw/metadata/lastid.txt', 'w') as file:
+    with open(local_datapath+'/data/raw/metadata/lastid.txt', 'w') as file:
         file.write(str(prof_id))
 
-
 def generate_metadata(prof_id):
-    with open('../RateMyProfessor/data/raw/metadata/metadata.txt', 'a+') as file:
+    with open(local_datapath+'/data/raw/metadata/metadata.txt', 'a+') as file:
         file.write(str(time.localtime()))
         file.write('\nstarting id: {}\n'.format(prof_id))
 
@@ -22,20 +23,23 @@ def get_ids(cores=8):
     ids_to_process = []
     for core in range(cores):
         ids_to_process.append(next(id_generator))
-        print('start id', ids_to_process[core])
+    print('start id', ids_to_process[0])
     # output_lastid(ids_to_process[-1])
     return ids_to_process
 
 
-def process(prof_id,cores=20):
+def process(prof_id,cores=4):
     try:
+        # print('Spider: trying in spider')
         professor = ScrapeProfessor(prof_id)
+        # print('Spider: professor obj created')
         professor.scrape_professor()
+        # print('Spider: professor has been scraped')
         professor.scrape_reviews()
-        print('seccess retriving id: {}'.format(prof_id))
+        print('Spider: seccess retriving id: {}'.format(prof_id))
 
     except:
-        print('404 ERROR for id: {}'.format(prof_id))
+        print('Spider: 404 ERROR for id: {}'.format(prof_id))
         ids404.append(prof_id)
 
     finally:
@@ -48,8 +52,8 @@ def main():
     count = 0
 
     while True:
-        count += 20
-        ids = get_ids(cores=20)
+        count += 4
+        ids = get_ids(cores=4)
 
         try:
             pool.map(process, ids)
@@ -61,10 +65,10 @@ def main():
                 print('================================')
 
         except KeyboardInterrupt:
-            output_lastid(ids[0]-20)
+            output_lastid(ids[0]-4)
             print(ids404)
             # feed error ids to 404.txt
-            with open("../RateMyProfessor/data/raw/metadata/404.txt", "a+") as file:
+            with open(local_datapath+"/RateMyProfessor/data/raw/metadata/404.txt", "a+") as file:
                 for i in ids404:
                     json.dump(i, file)
                     file.write('\n')
@@ -73,3 +77,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+    # process(static_startid)
